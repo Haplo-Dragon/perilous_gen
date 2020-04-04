@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 import random
 import sys
 
@@ -65,27 +66,29 @@ SPELL_NAME_TEMPLATES = {
 }
 
 
-class Spell:
+class Spell_Generator:
     def __init__(self):
-        # self.noun = None
-        # self.form = None
-        # self.adjective = None
-        # self.wizard_name = None
-        # self.name_template = None
-        self.tables = build_tables("SpellNames.txt")
-        self.wizard_name = None
-        self.generate_name()
+        try:
+            self.tables = load_tables("Spells.json")
+        except FileNotFoundError:
+            # If the JSON tables don't exist yet, we'll create them from a text file.
+            build_tables("Spells.json")
+            self.tables = load_tables("Spells.json")
 
-    def generate_name(self):
+    def spell(self):
         template = random.randint(1, 9)
 
         spell_name_template = SPELL_NAME_TEMPLATES[template]
         spell_info = []
+        wizard_name = None
 
         for table in spell_name_template:
+            # print("Generating a {}.".format(table))
             if self.is_wizard_name(table):
-                if self.wizard_name is None:
-                    spell_info.append(self.generate_wizard_name())
+                if wizard_name is None:
+                    # print("\tGenerating name for first time.")
+                    wizard_name = self.generate_wizard_name()
+                    spell_info.append(wizard_name)
             else:
                 feature = self.tables[table][random.randint(1, 100)]
                 spell_info.append(feature)
@@ -93,7 +96,8 @@ class Spell:
         name = SPELL_NAME_STRINGS[template]
 
         # We have to unpack the spell info list for this string formatting to work.
-        self.name = name.format(*spell_info)
+        spell_name = name.format(*spell_info)
+        return spell_name
 
     def is_wizard_name(self, table):
         return (
@@ -108,32 +112,66 @@ class Spell:
         suffix = suffix.strip("-")
 
         wizard = "".join([prefix, suffix])
-        self.wizard_name = wizard
 
         return wizard
 
-    def __str__(self):
-        return str(self.name)
 
-
-def build_tables(filename):
+def build_tables(json_filename):
     tables = {table_name: {} for table_name in Spell_Tables}
 
-    with open(filename, "r") as file:
-        for line in file:
-            cleaned_line = line.strip()
-            entry = cleaned_line.split(" ")
-            number = int(entry[0])
+    # Strip the JSON extension from the filename and add a TXT extension.
+    text_filename = json_filename[:-5]
+    text_filename += ".txt"
 
-            for table, item in zip(tables.values(), entry[1:]):
-                table[number] = item
+    try:
+        with open(text_filename, "r") as file:
+            for line in file:
+                cleaned_line = line.strip()
+                entry = cleaned_line.split(" ")
+                number = int(entry[0])
 
-    return tables
+                for table, item in zip(tables.values(), entry[1:]):
+                    table[number] = item
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Couldn't find a text file named {} with table data!".format(text_filename)
+        )
+
+    save_tables(tables, json_filename)
+
+
+def save_tables(tables, filename):
+    json_tables = {label.value: inner_table for label, inner_table in tables.items()}
+
+    with open(filename, "w") as file:
+        json.dump(json_tables, file)
+
+
+def load_tables(filename):
+    """
+    Load tables from a JSON file, adjusting their keys to be integers.
+    """
+    try:
+        with open(filename, "r") as file:
+            json_tables = json.load(file)
+    except FileNotFoundError:
+        raise FileNotFoundError("No JSON file named {}!".format(filename))
+
+    # Loading JSON will always give us string keys, and we need integers.
+    labeled = {Spell_Tables(int(num)): table for num, table in json_tables.items()}
+    # The same is true for the inner tables.
+    for key, inner_table in labeled.items():
+        labeled[key] = {int(k): v for k, v in inner_table.items()}
+
+    return labeled
 
 
 if __name__ == "__main__":
-    num_spells = int(sys.argv[1])
+    if len(sys.argv) > 1:
+        num_spells = int(sys.argv[1])
+    else:
+        num_spells = 1
 
+    spell_gen = Spell_Generator()
     for i in range(num_spells):
-        spell = Spell()
-        print(spell)
+        print(spell_gen.spell())
