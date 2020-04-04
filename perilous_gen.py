@@ -115,9 +115,6 @@ class Spell_Generator:
 
         return wizard
 
-    def __str__(self):
-        return str(self.name)
-
 
 def build_tables(json_filename):
     tables = {table_name: {} for table_name in Spell_Tables}
