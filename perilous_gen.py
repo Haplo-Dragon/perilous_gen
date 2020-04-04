@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 import random
 import sys
 
@@ -119,16 +120,42 @@ class Spell:
 def build_tables(filename):
     tables = {table_name: {} for table_name in Spell_Tables}
 
-    with open(filename, "r") as file:
-        for line in file:
-            cleaned_line = line.strip()
-            entry = cleaned_line.split(" ")
-            number = int(entry[0])
+    try:
+        with open(filename, "r") as file:
+            for line in file:
+                cleaned_line = line.strip()
+                entry = cleaned_line.split(" ")
+                number = int(entry[0])
 
-            for table, item in zip(tables.values(), entry[1:]):
-                table[number] = item
+                for table, item in zip(tables.values(), entry[1:]):
+                    table[number] = item
+    except FileNotFoundError:
+        raise FileNotFoundError("Couldn't find a text file with table data!")
 
     return tables
+
+
+def save_tables(tables, filename):
+    json_tables = {label.value: inner_table for label, inner_table in tables.items()}
+
+    with open(filename, 'w') as file:
+        json.dump(json_tables, file)
+
+
+def load_tables(filename):
+    try:
+        with open(filename, 'r') as file:
+            json_tables = json.load(file)
+    except FileNotFoundError:
+        raise FileNotFoundError("Couldn't find a JSON file named {}!".format(filename))
+
+    # Loading JSON will always give us string keys, and we need integers.
+    labeled = {Spell_Tables(int(num)): table for num, table in json_tables.items()}
+    # The same is true for the inner tables.
+    for key, inner_table in labeled.items():
+        labeled[key] = {int(k): v for k, v in inner_table.items()}
+
+    return labeled
 
 
 if __name__ == "__main__":
