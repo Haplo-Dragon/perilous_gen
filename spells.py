@@ -1,7 +1,6 @@
 from enum import Enum
 import generator as gen
 import random
-import tools
 
 
 class Spell_Tables(Enum):

@@ -1,7 +1,6 @@
 from enum import Enum
 import generator as gen
 import random
-import tools
 
 # General item type (d12)
 # Specific item (d100)
