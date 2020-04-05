@@ -49,9 +49,4 @@ M_ITEM_TEMPLATES = {
 
 class M_Item_Generator(gen.PerilGenerator):
     def __init__(self):
-        # try:
-        #     self.tables = tools.load_tables("MagicItems.json", M_Item)
-        # except FileNotFoundError:
-        #     tools.build_tables("MagicItems.json", M_Item)
-        #     self.tables = tools.load_tables("MagicItems.json", M_Item)
         gen.PerilGenerator.__init__(self, "MagicItems.json", M_Item)

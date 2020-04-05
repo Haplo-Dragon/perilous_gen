@@ -67,12 +67,6 @@ SPELL_NAME_TEMPLATES = {
 
 class Spell_Generator(gen.PerilGenerator):
     def __init__(self):
-        # try:
-        #     self.tables = tools.load_tables("Spells.json", Spell_Tables)
-        # except FileNotFoundError:
-        #     # If the JSON tables don't exist yet, we'll create them from a text file.
-        #     tools.build_tables("Spells.json", Spell_Tables)
-        #     self.tables = tools.load_tables("Spells.json", Spell_Tables)
         gen.PerilGenerator.__init__(self, "Spells.json", Spell_Tables)
 
     def spell(self):
