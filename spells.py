@@ -3,6 +3,7 @@ import generator as gen
 import random
 
 
+# Categories for the spell name random tables.
 class Spell_Tables(Enum):
     FORM = 1
     NOUN = 2
@@ -11,6 +12,7 @@ class Spell_Tables(Enum):
     WIZARD_NAME_POST = 5
 
 
+# Strings representing the name of a spell, as in "Rincewind's Mighty Bolt".
 SPELL_NAME_STRINGS = {
     # {noun} {form}
     1: "{} {}",
@@ -33,6 +35,7 @@ SPELL_NAME_STRINGS = {
 }
 
 SPELL_NAME_TEMPLATES = {
+    # Each template matches up with a spell name string above.
     1: [Spell_Tables.NOUN, Spell_Tables.FORM],
     2: [Spell_Tables.ADJECTIVE, Spell_Tables.FORM],
     3: [Spell_Tables.ADJECTIVE, Spell_Tables.NOUN],
@@ -66,21 +69,31 @@ SPELL_NAME_TEMPLATES = {
 
 
 class Spell_Generator(gen.PerilGenerator):
+    """
+    Generates random spell names using Jason Lute's 'Dungeons Monsters Treasure'.
+    """
+
     def __init__(self):
         gen.PerilGenerator.__init__(self, "Spells.json", Spell_Tables)
 
     def spell(self):
+        """
+        Generates a new random spell name.
+        """
         template = random.randint(1, 9)
-
         spell_name_template = SPELL_NAME_TEMPLATES[template]
+
         spell_info = []
         wizard_name = None
 
+        # Get a random entry for each category in the spell name template.
         for table in spell_name_template:
-            # print("Generating a {}.".format(table))
+            # Wizard names are split into prefixes and suffixes across two
+            # tables, so when the prefix table comes up, we'll generate
+            # the whole name, then skip the suffix when it comes up next (since
+            # we don't want to accidentally generate two wizard names).
             if self.is_wizard_name(table):
                 if wizard_name is None:
-                    # print("\tGenerating name for first time.")
                     wizard_name = self.generate_wizard_name()
                     spell_info.append(wizard_name)
             else:
@@ -94,14 +107,23 @@ class Spell_Generator(gen.PerilGenerator):
         return spell_name
 
     def is_wizard_name(self, table):
+        """
+        Returns true if the given table is a wizard name table (prefix or suffix).
+        """
         return (
             table == Spell_Tables.WIZARD_NAME_PRE
             or table == Spell_Tables.WIZARD_NAME_POST
         )
 
     def generate_wizard_name(self):
+        """
+        Generates a random wizard name.
+        """
+        # Get a random prefix and a random suffix.
         prefix = self.tables[Spell_Tables.WIZARD_NAME_PRE][random.randint(1, 100)]
         suffix = self.tables[Spell_Tables.WIZARD_NAME_POST][random.randint(1, 100)]
+
+        # Join the prefix and suffix together after removing the hyphens.
         prefix = prefix.strip("-")
         suffix = suffix.strip("-")
 

@@ -2,9 +2,20 @@ import json
 
 
 def build_tables(json_filename, fields):
+    """
+    Build tables from a text file, sorting each entry into categories based on fields.
+
+    The text file contains the entries from a dice roll table in the following format:
+    [number] [entry for field 1] [entry for field 2] [entry for field 3] etc.
+    Example:
+    42 Globe History Gyrating I- -kang
+    """
+    # Each field will get its own blank table.
     tables = {table_name: {} for table_name in fields}
 
     # Strip the JSON extension from the filename and add a TXT extension.
+    # We do this so that build_tables can be called with the same filename used for
+    # load_tables.
     text_filename = json_filename[:-5]
     text_filename += ".txt"
 
@@ -12,9 +23,12 @@ def build_tables(json_filename, fields):
         with open(text_filename, "r") as file:
             for line in file:
                 cleaned_line = line.strip()
+                # Split the set of entries by field.
                 entry = cleaned_line.split(" ")
+                # Get the number for this set of entries.
                 number = int(entry[0])
 
+                # Match each entry to its corresponding field.
                 for table, item in zip(tables.values(), entry[1:]):
                     table[number] = item
     except FileNotFoundError:
@@ -26,6 +40,9 @@ def build_tables(json_filename, fields):
 
 
 def save_tables(tables, filename):
+    """
+    Save tables to the specified JSON file.
+    """
     json_tables = {label.value: inner_table for label, inner_table in tables.items()}
 
     with open(filename, "w") as file:
@@ -44,7 +61,8 @@ def load_tables(filename, fields):
 
     # Loading JSON will always give us string keys, and we need integers.
     labeled = {fields(int(num)): table for num, table in json_tables.items()}
-    # The same is true for the inner tables.
+    # Since each key references a value that is itself a table, we need to correct
+    # the inner table keys to be integers as well.
     for key, inner_table in labeled.items():
         labeled[key] = {int(k): v for k, v in inner_table.items()}
 
