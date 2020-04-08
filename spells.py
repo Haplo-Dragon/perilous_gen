@@ -1,5 +1,6 @@
 from enum import Enum
 import generator as gen
+import os
 import random
 
 
@@ -74,7 +75,8 @@ class Spell_Generator(gen.PerilGenerator):
     """
 
     def __init__(self):
-        gen.PerilGenerator.__init__(self, "Spells.json", Spell_Tables)
+        self.filename = os.path.join("tables", "Spells.json")
+        gen.PerilGenerator.__init__(self, self.filename, Spell_Tables)
 
     def spell(self):
         """
@@ -92,9 +94,9 @@ class Spell_Generator(gen.PerilGenerator):
             # tables, so when the prefix table comes up, we'll generate
             # the whole name, then skip the suffix when it comes up next (since
             # we don't want to accidentally generate two wizard names).
-            if self.is_wizard_name(table):
+            if self.is_wizard_name(table, Spell_Tables):
                 if wizard_name is None:
-                    wizard_name = self.generate_wizard_name()
+                    wizard_name = self.generate_wizard_name(Spell_Tables)
                     spell_info.append(wizard_name)
             else:
                 feature = self.tables[table][random.randint(1, 100)]
@@ -106,27 +108,27 @@ class Spell_Generator(gen.PerilGenerator):
         spell_name = name.format(*spell_info)
         return spell_name
 
-    def is_wizard_name(self, table):
-        """
-        Returns true if the given table is a wizard name table (prefix or suffix).
-        """
-        return (
-            table == Spell_Tables.WIZARD_NAME_PRE
-            or table == Spell_Tables.WIZARD_NAME_POST
-        )
+    # def is_wizard_name(self, table):
+    #     """
+    #     Returns true if the given table is a wizard name table (prefix or suffix).
+    #     """
+    #     return (
+    #         table == Spell_Tables.WIZARD_NAME_PRE
+    #         or table == Spell_Tables.WIZARD_NAME_POST
+    #     )
 
-    def generate_wizard_name(self):
-        """
-        Generates a random wizard name.
-        """
-        # Get a random prefix and a random suffix.
-        prefix = self.tables[Spell_Tables.WIZARD_NAME_PRE][random.randint(1, 100)]
-        suffix = self.tables[Spell_Tables.WIZARD_NAME_POST][random.randint(1, 100)]
+    # def generate_wizard_name(self):
+    #     """
+    #     Generates a random wizard name.
+    #     """
+    #     # Get a random prefix and a random suffix.
+    #     prefix = self.tables[Spell_Tables.WIZARD_NAME_PRE][random.randint(1, 100)]
+    #     suffix = self.tables[Spell_Tables.WIZARD_NAME_POST][random.randint(1, 100)]
 
-        # Join the prefix and suffix together after removing the hyphens.
-        prefix = prefix.strip("-")
-        suffix = suffix.strip("-")
+    #     # Join the prefix and suffix together after removing the hyphens.
+    #     prefix = prefix.strip("-")
+    #     suffix = suffix.strip("-")
 
-        wizard = "".join([prefix, suffix])
+    #     wizard = "".join([prefix, suffix])
 
-        return wizard
+    #     return wizard
