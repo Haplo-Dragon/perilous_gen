@@ -107,28 +107,3 @@ class Spell_Generator(gen.PerilGenerator):
         # We have to unpack the spell info list for this string formatting to work.
         spell_name = name.format(*spell_info)
         return spell_name
-
-    # def is_wizard_name(self, table):
-    #     """
-    #     Returns true if the given table is a wizard name table (prefix or suffix).
-    #     """
-    #     return (
-    #         table == Spell_Tables.WIZARD_NAME_PRE
-    #         or table == Spell_Tables.WIZARD_NAME_POST
-    #     )
-
-    # def generate_wizard_name(self):
-    #     """
-    #     Generates a random wizard name.
-    #     """
-    #     # Get a random prefix and a random suffix.
-    #     prefix = self.tables[Spell_Tables.WIZARD_NAME_PRE][random.randint(1, 100)]
-    #     suffix = self.tables[Spell_Tables.WIZARD_NAME_POST][random.randint(1, 100)]
-
-    #     # Join the prefix and suffix together after removing the hyphens.
-    #     prefix = prefix.strip("-")
-    #     suffix = suffix.strip("-")
-
-    #     wizard = "".join([prefix, suffix])
-
-    #     return wizard
