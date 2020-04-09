@@ -44,38 +44,42 @@ SPELL_NAME_TEMPLATES = [
 
     # {wizard name}'s {adjective} {form}'
     templates.NameTemplate(
-        [Spell_Tables.WIZARD_NAME_PRE,
-         Spell_Tables.WIZARD_NAME_POST,
-         Spell_Tables.ADJECTIVE,
-         Spell_Tables.FORM,
-         ],
+        [
+            Spell_Tables.WIZARD_NAME_PRE,
+            Spell_Tables.WIZARD_NAME_POST,
+            Spell_Tables.ADJECTIVE,
+            Spell_Tables.FORM,
+        ],
         "{}'s {} {}"),
 
     # {wizard name}'s {adjective} {noun}'
     templates.NameTemplate(
-        [Spell_Tables.WIZARD_NAME_PRE,
-         Spell_Tables.WIZARD_NAME_POST,
-         Spell_Tables.ADJECTIVE,
-         Spell_Tables.NOUN,
-         ],
+        [
+            Spell_Tables.WIZARD_NAME_PRE,
+            Spell_Tables.WIZARD_NAME_POST,
+            Spell_Tables.ADJECTIVE,
+            Spell_Tables.NOUN,
+        ],
         "{}'s {} {}"),
 
     # {wizard name}'s {form} of {noun}'
     templates.NameTemplate(
-        [Spell_Tables.WIZARD_NAME_PRE,
-         Spell_Tables.WIZARD_NAME_POST,
-         Spell_Tables.FORM,
-         Spell_Tables.NOUN,
-         ],
+        [
+            Spell_Tables.WIZARD_NAME_PRE,
+            Spell_Tables.WIZARD_NAME_POST,
+            Spell_Tables.FORM,
+            Spell_Tables.NOUN,
+        ],
         "{}'s {} of {}"),
 
     # {wizard name}'s {noun} {form}'
     templates.NameTemplate(
-        [Spell_Tables.WIZARD_NAME_PRE,
-         Spell_Tables.WIZARD_NAME_POST,
-         Spell_Tables.NOUN,
-         Spell_Tables.FORM,
-         ],
+        [
+            Spell_Tables.WIZARD_NAME_PRE,
+            Spell_Tables.WIZARD_NAME_POST,
+            Spell_Tables.NOUN,
+            Spell_Tables.FORM,
+        ],
         "{}'s {} {}"),
 ]
 

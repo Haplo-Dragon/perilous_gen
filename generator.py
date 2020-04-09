@@ -19,8 +19,7 @@ class PerilGenerator:
         Returns true if the given table is a wizard name table (prefix or suffix).
         """
         return (
-            table == table_names.WIZARD_NAME_PRE or
-            table == table_names.WIZARD_NAME_POST
+            table == table_names.WIZARD_NAME_PRE or table == table_names.WIZARD_NAME_POST
         )
 
     def generate_wizard_name(self, table_names):

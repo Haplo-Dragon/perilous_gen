@@ -81,7 +81,8 @@ def build_item_tables(json_filename, fields):
     # TODO If number range, top_end - bottom_end + 1 will be weight of that entry.
     # If not number range, weight is 1.
     raise NotImplementedError(
-        "Haven't figured out how to do this yet. Need to set format of text file(s)")
+        "Haven't figured out how to do this yet. Need to set format of text file(s)"
+    )
 
     # # Each field will get its own blank table. This variable is a dict of dicts.
     # tables = {table_name: {} for table_name in fields}

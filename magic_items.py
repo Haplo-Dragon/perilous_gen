@@ -58,26 +58,32 @@ M_ITEM_TEMPLATES = [
 
     # {wizard name}'s {item} of (the) {noun}
     templates.NameTemplate(
-        [M_ItemName.WIZARD_NAME_PRE,
-         M_ItemName.WIZARD_NAME_POST,
-         M_ItemName.ITEM,
-         M_ItemName.NOUN],
+        [
+            M_ItemName.WIZARD_NAME_PRE,
+            M_ItemName.WIZARD_NAME_POST,
+            M_ItemName.ITEM,
+            M_ItemName.NOUN,
+        ],
         "{}'s {} of (the) {}"),
 
     # {wizard name}'s {adjective} {item}
     templates.NameTemplate(
-        [M_ItemName.WIZARD_NAME_PRE,
-         M_ItemName.WIZARD_NAME_POST,
-         M_ItemName.ADJECTIVE,
-         M_ItemName.ITEM],
+        [
+            M_ItemName.WIZARD_NAME_PRE,
+            M_ItemName.WIZARD_NAME_POST,
+            M_ItemName.ADJECTIVE,
+            M_ItemName.ITEM,
+        ],
         "{}'s {} {}"),
 
     # {wizard name}'s {noun} {item}
     templates.NameTemplate(
-        [M_ItemName.WIZARD_NAME_PRE,
-         M_ItemName.WIZARD_NAME_POST,
-         M_ItemName.NOUN,
-         M_ItemName.ITEM],
+        [
+            M_ItemName.WIZARD_NAME_PRE,
+            M_ItemName.WIZARD_NAME_POST,
+            M_ItemName.NOUN,
+            M_ItemName.ITEM,
+        ],
         "{}'s {} {}"),
 ]
 
