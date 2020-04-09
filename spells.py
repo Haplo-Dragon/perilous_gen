@@ -2,6 +2,7 @@ from enum import Enum
 import generator as gen
 import os
 import random
+import templates
 
 
 # Categories for the spell name random tables.
@@ -13,60 +14,73 @@ class Spell_Tables(Enum):
     WIZARD_NAME_POST = 5
 
 
-# Strings representing the name of a spell, as in "Rincewind's Mighty Bolt".
-SPELL_NAME_STRINGS = {
+# Templates matching fields for random tables with strings representing the names
+# of spells, as in "Rincewind's Mighty Bolt".
+SPELL_NAME_TEMPLATES = [
     # {noun} {form}
-    1: "{} {}",
-    # {adjective} {form}
-    2: "{} {}",
-    # {adjective} {noun}
-    3: "{} {}",
-    # {form} of {noun}
-    4: "{} of {}",
-    # {form} of {adjective} {noun}
-    5: "{} of {} {}",
-    # {wizard name}'s {adjective} {form}'
-    6: "{}'s {} {}",
-    # {wizard name}'s {adjective} {noun}'
-    7: "{}'s {} {}",
-    # {wizard name}'s {form} of {noun}'
-    8: "{}'s {} of {}",
-    # {wizard name}'s {noun} {form}'
-    9: "{}'s {} {}",
-}
+    templates.NameTemplate(
+        [Spell_Tables.NOUN, Spell_Tables.FORM],
+        "{} {}"),
 
-SPELL_NAME_TEMPLATES = {
-    # Each template matches up with a spell name string above.
-    1: [Spell_Tables.NOUN, Spell_Tables.FORM],
-    2: [Spell_Tables.ADJECTIVE, Spell_Tables.FORM],
-    3: [Spell_Tables.ADJECTIVE, Spell_Tables.NOUN],
-    4: [Spell_Tables.FORM, Spell_Tables.NOUN],
-    5: [Spell_Tables.FORM, Spell_Tables.ADJECTIVE, Spell_Tables.NOUN],
-    6: [
-        Spell_Tables.WIZARD_NAME_PRE,
-        Spell_Tables.WIZARD_NAME_POST,
-        Spell_Tables.ADJECTIVE,
-        Spell_Tables.FORM,
-    ],
-    7: [
-        Spell_Tables.WIZARD_NAME_PRE,
-        Spell_Tables.WIZARD_NAME_POST,
-        Spell_Tables.ADJECTIVE,
-        Spell_Tables.NOUN,
-    ],
-    8: [
-        Spell_Tables.WIZARD_NAME_PRE,
-        Spell_Tables.WIZARD_NAME_POST,
-        Spell_Tables.FORM,
-        Spell_Tables.NOUN,
-    ],
-    9: [
-        Spell_Tables.WIZARD_NAME_PRE,
-        Spell_Tables.WIZARD_NAME_POST,
-        Spell_Tables.NOUN,
-        Spell_Tables.FORM,
-    ],
-}
+    # {adjective} {form}
+    templates.NameTemplate(
+        [Spell_Tables.ADJECTIVE, Spell_Tables.FORM],
+        "{} {}"),
+
+    # {adjective} {noun}
+    templates.NameTemplate(
+        [Spell_Tables.ADJECTIVE, Spell_Tables.NOUN],
+        "{} {}"),
+
+    # {form} of {noun}
+    templates.NameTemplate(
+        [Spell_Tables.FORM, Spell_Tables.NOUN],
+        "{} of {}"),
+
+    # {form} of {adjective} {noun}
+    templates.NameTemplate(
+        [Spell_Tables.FORM, Spell_Tables.ADJECTIVE, Spell_Tables.NOUN],
+        "{} of {} {}"),
+
+    # {wizard name}'s {adjective} {form}'
+    templates.NameTemplate(
+        [Spell_Tables.WIZARD_NAME_PRE,
+         Spell_Tables.WIZARD_NAME_POST,
+         Spell_Tables.ADJECTIVE,
+         Spell_Tables.FORM,
+         ],
+        "{}'s {} {}"),
+
+    # {wizard name}'s {adjective} {noun}'
+    templates.NameTemplate(
+        [Spell_Tables.WIZARD_NAME_PRE,
+         Spell_Tables.WIZARD_NAME_POST,
+         Spell_Tables.ADJECTIVE,
+         Spell_Tables.NOUN,
+         ],
+        "{}'s {} {}"),
+
+    # {wizard name}'s {form} of {noun}'
+    templates.NameTemplate(
+        [Spell_Tables.WIZARD_NAME_PRE,
+         Spell_Tables.WIZARD_NAME_POST,
+         Spell_Tables.FORM,
+         Spell_Tables.NOUN,
+         ],
+        "{}'s {} of {}"),
+
+    # {wizard name}'s {noun} {form}'
+    templates.NameTemplate(
+        [Spell_Tables.WIZARD_NAME_PRE,
+         Spell_Tables.WIZARD_NAME_POST,
+         Spell_Tables.NOUN,
+         Spell_Tables.FORM,
+         ],
+        "{}'s {} {}"),
+]
+
+# Some templates are more likely to be selected than others.
+SPELL_NAME_TEMPLATE_WEIGHTS = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 
 
 class Spell_Generator(gen.PerilGenerator):
@@ -82,14 +96,19 @@ class Spell_Generator(gen.PerilGenerator):
         """
         Generates a new random spell name.
         """
-        template = random.randint(1, 9)
-        spell_name_template = SPELL_NAME_TEMPLATES[template]
+        # Using random.choices() allows us to specify weighting. We only need 1
+        # result, so k=1, and we'll just take the first element of the (length 1)
+        # list it returns.
+        spell_name_template = random.choices(
+            SPELL_NAME_TEMPLATES,
+            SPELL_NAME_TEMPLATE_WEIGHTS,
+            k=1)[0]
 
         spell_info = []
         wizard_name = None
 
         # Get a random entry for each category in the spell name template.
-        for table in spell_name_template:
+        for table in spell_name_template.fields:
             # Wizard names are split into prefixes and suffixes across two
             # tables, so when the prefix table comes up, we'll generate
             # the whole name, then skip the suffix when it comes up next (since
@@ -102,8 +121,8 @@ class Spell_Generator(gen.PerilGenerator):
                 feature = self.tables[table][random.randint(1, 100)]
                 spell_info.append(feature)
 
-        name = SPELL_NAME_STRINGS[template]
+        name_string = spell_name_template.string
 
         # We have to unpack the spell info list for this string formatting to work.
-        spell_name = name.format(*spell_info)
+        spell_name = name_string.format(*spell_info)
         return spell_name

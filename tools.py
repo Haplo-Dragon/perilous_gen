@@ -78,6 +78,8 @@ def build_item_tables(json_filename, fields):
     Example:
     42-46 Hammer
     """
+    # TODO If number range, top_end - bottom_end + 1 will be weight of that entry.
+    # If not number range, weight is 1.
     raise NotImplementedError(
         "Haven't figured out how to do this yet. Need to set format of text file(s)")
 

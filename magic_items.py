@@ -3,6 +3,7 @@ import generator as gen
 import os
 import random
 import spells
+import templates
 import tools
 
 
@@ -27,40 +28,61 @@ class M_ItemName(Enum):
     WIZARD_NAME_POST = 5
 
 
-# Strings representing the name of a magic item, as in "Rincewind's Smart Luggage".
-M_ITEM_NAME_STRINGS = {
+# Templates matching fields for random tables with strings representing the names
+# of magic items, as in "Rincewind's Smart Luggage".
+M_ITEM_TEMPLATES = [
     # {noun} {item}
-    1: "{} {}",
-    # {adjective} {item}
-    2: "{} {}",
-    # {item} of the {noun}
-    3: "{} of (the) {}",
-    # {adjective} {item} of the {noun}
-    4: "{} {} of the {}",
-    # {wizard name}'s {item}
-    5: "{}'s {}",
-    # {wizard name}'s {item} of (the) {noun}
-    6: "{}'s {} of (the) {}",
-    # {wizard name}'s {adjective} {item}
-    7: "{}'s {} {}",
-    # {wizard name}'s {noun} {item}
-    8: "{}'s {} {}",
-}
+    templates.NameTemplate(
+        [M_ItemName.NOUN, M_ItemName.ITEM],
+        "{} {}"),
 
-M_ITEM_TEMPLATES = {
-    # Each template matches up with a magic item name string above.
-    1: [M_ItemName.NOUN, M_ItemName.ITEM],
-    2: [M_ItemName.ADJECTIVE, M_ItemName.ITEM],
-    3: [M_ItemName.ITEM, M_ItemName.NOUN],
-    4: [M_ItemName.ADJECTIVE, M_ItemName.ITEM, M_ItemName.NOUN],
-    5: [M_ItemName.WIZARD_NAME_PRE, M_ItemName.WIZARD_NAME_POST, M_ItemName.ITEM],
-    6: [M_ItemName.WIZARD_NAME_PRE, M_ItemName.WIZARD_NAME_POST,
-        M_ItemName.ITEM, M_ItemName.NOUN],
-    7: [M_ItemName.WIZARD_NAME_PRE, M_ItemName.WIZARD_NAME_POST,
-        M_ItemName.ADJECTIVE, M_ItemName.ITEM],
-    8: [M_ItemName.WIZARD_NAME_PRE, M_ItemName.WIZARD_NAME_POST,
-        M_ItemName.NOUN, M_ItemName.ITEM],
-}
+    # {adjective} {item}
+    templates.NameTemplate(
+        [M_ItemName.ADJECTIVE, M_ItemName.ITEM],
+        "{} {}"),
+
+    # {item} of the {noun}
+    templates.NameTemplate(
+        [M_ItemName.ITEM, M_ItemName.NOUN],
+        "{} of (the) {}"),
+
+    # {adjective} {item} of the {noun}
+    templates.NameTemplate(
+        [M_ItemName.ADJECTIVE, M_ItemName.ITEM, M_ItemName.NOUN],
+        "{} {} of the {}"),
+
+    # {wizard name}'s {item}
+    templates.NameTemplate(
+        [M_ItemName.WIZARD_NAME_PRE, M_ItemName.WIZARD_NAME_POST, M_ItemName.ITEM],
+        "{}'s {}"),
+
+    # {wizard name}'s {item} of (the) {noun}
+    templates.NameTemplate(
+        [M_ItemName.WIZARD_NAME_PRE,
+         M_ItemName.WIZARD_NAME_POST,
+         M_ItemName.ITEM,
+         M_ItemName.NOUN],
+        "{}'s {} of (the) {}"),
+
+    # {wizard name}'s {adjective} {item}
+    templates.NameTemplate(
+        [M_ItemName.WIZARD_NAME_PRE,
+         M_ItemName.WIZARD_NAME_POST,
+         M_ItemName.ADJECTIVE,
+         M_ItemName.ITEM],
+        "{}'s {} {}"),
+
+    # {wizard name}'s {noun} {item}
+    templates.NameTemplate(
+        [M_ItemName.WIZARD_NAME_PRE,
+         M_ItemName.WIZARD_NAME_POST,
+         M_ItemName.NOUN,
+         M_ItemName.ITEM],
+        "{}'s {} {}"),
+]
+
+# Some templates are more likely to be selected than others.
+M_ITEM_TEMPLATE_WEIGHTS = [2, 2, 2, 2, 1, 1, 1, 1]
 
 
 class M_Item_Generator(gen.PerilGenerator):
@@ -71,19 +93,14 @@ class M_Item_Generator(gen.PerilGenerator):
     def __init__(self):
         self.filename = os.path.join("tables", "MagicItems.json")
         gen.PerilGenerator.__init__(self, self.filename, M_ItemName)
-        self.init_item_types()
 
-    def init_item_types(self):
-        self.item_types = {
-            1: M_Item.SCROLL,
-            2: M_Item.POTION,
-            3: M_Item.GARB,
-            4: M_Item.JEWELRY,
-            5: M_Item.WAND,
-            6: M_Item.WEAPON,
-            7: M_Item.ARMOR,
-            8: M_Item.MISC,
-        }
+        self.item_types = list(M_Item)
+        self.item_type_weights = [1, 3, 1, 2, 1, 1, 1, 2]
+
+        self.init_item_tables()
+
+    def init_item_tables(self):
+        raise NotImplementedError("Specific items don't work - needs to be changed.")
         self.item_type_filename = os.path.join("tables", "MagicItemTypes.json")
         try:
             self.item_tables = tools.load_tables(self.item_type_filename, M_Item)
@@ -96,7 +113,11 @@ class M_Item_Generator(gen.PerilGenerator):
         Generates a new random magic item.
         """
         # Get general item type.
-        general_item_type = self.item_types[random.randint(1, len(self.item_types))]
+        # We're using random.choices() because it allows us to specify relative weights.
+        general_item_type = random.choices(
+            self.item_types,
+            self.item_type_weights,
+            k=1)[0]
 
         # A scroll will have a random spell inscribed on it.
         if general_item_type == M_Item.SCROLL:
@@ -104,14 +125,16 @@ class M_Item_Generator(gen.PerilGenerator):
             spell_name = spell_gen.spell()
             return "Scroll of {}".format(spell_name)
 
-        template = random.randint(1, 9)
-        item_name_template = M_ITEM_TEMPLATES[template]
+        item_name_template = random.choices(
+            M_ITEM_TEMPLATES,
+            M_ITEM_TEMPLATE_WEIGHTS,
+            k=1)[0]
 
         item_info = []
         wizard_name = None
 
         # Get a random entry for each category in the item name template.
-        for table in item_name_template:
+        for table in item_name_template.fields:
             # Wizard names are split into prefixes and suffixes across two
             # tables, so when the prefix table comes up, we'll generate
             # the whole name, then skip the suffix when it comes up next (since
@@ -128,11 +151,14 @@ class M_Item_Generator(gen.PerilGenerator):
                 feature = self.tables[table][random.randint(1, 100)]
                 item_info.append(feature)
 
-        name = M_ITEM_NAME_STRINGS[template]
+        name_string = item_name_template.string
 
         # # We have to unpack the item info list for this string formatting to work.
-        item_name = name.format(*item_info)
+        item_name = name_string.format(*item_info)
         return item_name
 
     def generate_specific_item(self, general_item_type):
+        # TODO Can use a dict mapping general item type to item table and weights?
+        # Then just random.choices() with given table and weights.
+        # May need Table class to hold this information elegantly?
         raise NotImplementedError("Not done yet!")
