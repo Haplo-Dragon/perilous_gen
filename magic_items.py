@@ -109,17 +109,19 @@ class M_Item_Generator(gen.PerilGenerator):
         gen.PerilGenerator.__init__(self, self.filename, magic_item_name_fields)
 
         self.item_types = tables.Table(list(M_Item), [1, 3, 1, 2, 1, 1, 1, 2])
-
-        self.init_item_tables()
+        self.items = self.init_item_tables()
 
     def init_item_tables(self):
         raise NotImplementedError("Specific items don't work - needs to be changed.")
-        self.item_type_filename = os.path.join("tables", "MagicItemTypes.json")
+        specific_items_filename = os.path.join("tables", "Items.json")
+
         try:
-            self.item_tables = tools.load_tables(self.item_type_filename, M_Item)
+            items = tools.load_tables(M_Item, specific_items_filename)
         except FileNotFoundError:
-            tools.build_item_tables(self.item_type_filename, M_Item)
-            self.item_tables = tools.load_tables(self.item_type_filename, M_Item)
+            tools.build_item_tables(M_Item, specific_items_filename)
+            items = tools.load_tables(M_Item, specific_items_filename)
+
+        return items
 
     def magic_item(self):
         """
@@ -147,10 +149,11 @@ class M_Item_Generator(gen.PerilGenerator):
                 if wizard_name is None:
                     wizard_name = self.generate_wizard_name(M_ItemName)
                     item_info.append(wizard_name)
+
             elif table == M_ItemName.ITEM:
-                # Specific item (d100)
                 item = self.generate_specific_item(general_item_type)
                 item_info.append(item)
+
             else:
                 feature = self.tables[table].random()
                 item_info.append(feature)
@@ -162,10 +165,12 @@ class M_Item_Generator(gen.PerilGenerator):
         return item_name
 
     def generate_specific_item(self, general_item_type):
+        """
+        Returns a randomly chosen specific item of general_item_type.
+        """
         # TODO Can use a dict mapping general item type to item table and weights?
-        # Then just random.choices() with given table and weights.
-        # May need Table class to hold this information elegantly?
-        raise NotImplementedError("Not done yet!")
+        # So, dict mapping general item types (enums) to Table objects.
+        return self.items[general_item_type].random()
 
     def scroll(self):
         """

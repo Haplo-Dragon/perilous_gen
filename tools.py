@@ -89,19 +89,21 @@ def build_item_tables(json_filename, fields):
     Build item tables from a text file.
 
     The text file contains entries from a dice roll table in the following format:
+    [Item type header]
     [number or number range] [item type]
     Example:
+    [WEAPON]
     42-46 Hammer
     """
     raise NotImplementedError(
         "Haven't figured out how to do this yet. Need to set format of text file(s)"
     )
-
-    # # Each field will get its own blank table. This variable is a dict of dicts.
-    # tables = {table_name: {} for table_name in fields}
+    # # Each field will get its own blank table. This variable maps enum members to
+    # # Table objects.
+    # enum_tables = {table_name: tables.Table() for table_name in fields}
 
     # # Strip the JSON extension from the filename and add a TXT extension.
-    # # We do this so that build_item_tables can be called with the same filename used for
+    # # We do this so that build_tables can be called with the same filename used for
     # # load_tables.
     # text_filename = json_filename[:-5]
     # text_filename += ".txt"
@@ -110,21 +112,23 @@ def build_item_tables(json_filename, fields):
     #     with open(text_filename, "r") as file:
     #         for line in file:
     #             cleaned_line = line.strip()
-    #             # Split the entry from the number for the entry.
+    #             # Split the set of entries by field.
     #             entry = cleaned_line.split(" ")
-    #             # Get the number or number range for this entry.
-    #             number_range = get_number_range(entry[0])
+    #             # Get the weight for this set of entries.
+    #             # For ranges, weight = top - bottom + 1. For single numbers, weight = 1.
+    #             weight = number_to_weight(entry[0])
 
     #             # Match each entry to its corresponding field.
-    #             for table, item in zip(tables.values(), entry[1:]):
-    #                 table[number] = item
+    #             for table, item in zip(enum_tables.values(), entry[1:]):
+    #                 table.entries.append(item)
+    #                 table.weights.append(weight)
 
     # except FileNotFoundError:
     #     raise FileNotFoundError(
     #         "Couldn't find a text file named {} with table data!".format(text_filename)
     #     )
 
-    # save_tables(tables, json_filename)
+    # save_tables(enum_tables, json_filename)
 
 
 def number_to_weight(number_string):

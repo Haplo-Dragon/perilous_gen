@@ -119,6 +119,7 @@ class Spell_Generator(gen.PerilGenerator):
                 if wizard_name is None:
                     wizard_name = self.generate_wizard_name(Spell_Tables)
                     spell_info.append(wizard_name)
+
             else:
                 feature = self.tables[table].random()
                 spell_info.append(feature)
