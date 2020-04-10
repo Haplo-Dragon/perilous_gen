@@ -1,8 +1,8 @@
 from enum import Enum
 import generator as gen
 import os
-import random
 import spells
+import tables
 import templates
 import tools
 
@@ -90,6 +90,8 @@ M_ITEM_TEMPLATES = [
 # Some templates are more likely to be selected than others.
 M_ITEM_TEMPLATE_WEIGHTS = [2, 2, 2, 2, 1, 1, 1, 1]
 
+M_ITEM_TEMPLATE_TABLE = tables.Table(M_ITEM_TEMPLATES, M_ITEM_TEMPLATE_WEIGHTS)
+
 
 class M_Item_Generator(gen.PerilGenerator):
     """
@@ -98,10 +100,15 @@ class M_Item_Generator(gen.PerilGenerator):
 
     def __init__(self):
         self.filename = os.path.join("tables", "MagicItems.json")
-        gen.PerilGenerator.__init__(self, self.filename, M_ItemName)
+        magic_item_name_fields = [
+            M_ItemName.NOUN,
+            M_ItemName.ADJECTIVE,
+            M_ItemName.WIZARD_NAME_PRE,
+            M_ItemName.WIZARD_NAME_POST]
 
-        self.item_types = list(M_Item)
-        self.item_type_weights = [1, 3, 1, 2, 1, 1, 1, 2]
+        gen.PerilGenerator.__init__(self, self.filename, magic_item_name_fields)
+
+        self.item_types = tables.Table(list(M_Item), [1, 3, 1, 2, 1, 1, 1, 2])
 
         self.init_item_tables()
 
@@ -119,22 +126,13 @@ class M_Item_Generator(gen.PerilGenerator):
         Generates a new random magic item.
         """
         # Get general item type.
-        # We're using random.choices() because it allows us to specify relative weights.
-        general_item_type = random.choices(
-            self.item_types,
-            self.item_type_weights,
-            k=1)[0]
+        general_item_type = self.item_types.random()
 
         # A scroll will have a random spell inscribed on it.
         if general_item_type == M_Item.SCROLL:
-            spell_gen = spells.Spell_Generator()
-            spell_name = spell_gen.spell()
-            return "Scroll of {}".format(spell_name)
+            return self.scroll()
 
-        item_name_template = random.choices(
-            M_ITEM_TEMPLATES,
-            M_ITEM_TEMPLATE_WEIGHTS,
-            k=1)[0]
+        item_name_template = M_ITEM_TEMPLATE_TABLE.random()
 
         item_info = []
         wizard_name = None
@@ -154,7 +152,7 @@ class M_Item_Generator(gen.PerilGenerator):
                 item = self.generate_specific_item(general_item_type)
                 item_info.append(item)
             else:
-                feature = self.tables[table][random.randint(1, 100)]
+                feature = self.tables[table].random()
                 item_info.append(feature)
 
         name_string = item_name_template.string
@@ -168,3 +166,11 @@ class M_Item_Generator(gen.PerilGenerator):
         # Then just random.choices() with given table and weights.
         # May need Table class to hold this information elegantly?
         raise NotImplementedError("Not done yet!")
+
+    def scroll(self):
+        """
+        Generates a scroll with a random spell inscribed on it.
+        """
+        spell_gen = spells.Spell_Generator()
+        spell_name = spell_gen.spell()
+        return "Scroll of {}".format(spell_name)

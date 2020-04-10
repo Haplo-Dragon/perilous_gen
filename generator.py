@@ -1,4 +1,3 @@
-import random
 import tools
 
 
@@ -27,8 +26,8 @@ class PerilGenerator:
         Generates a random wizard name.
         """
         # Get a random prefix and a random suffix.
-        prefix = self.tables[table_names.WIZARD_NAME_PRE][random.randint(1, 100)]
-        suffix = self.tables[table_names.WIZARD_NAME_POST][random.randint(1, 100)]
+        prefix = self.tables[table_names.WIZARD_NAME_PRE].random()
+        suffix = self.tables[table_names.WIZARD_NAME_POST].random()
 
         # Join the prefix and suffix together after removing the hyphens.
         prefix = prefix.strip("-")

@@ -1,7 +1,7 @@
 from enum import Enum
 import generator as gen
 import os
-import random
+import tables
 import templates
 
 
@@ -86,6 +86,10 @@ SPELL_NAME_TEMPLATES = [
 # Some templates are more likely to be selected than others.
 SPELL_NAME_TEMPLATE_WEIGHTS = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 
+SPELL_NAME_TEMPLATE_TABLE = tables.Table(
+    SPELL_NAME_TEMPLATES,
+    SPELL_NAME_TEMPLATE_WEIGHTS)
+
 
 class Spell_Generator(gen.PerilGenerator):
     """
@@ -100,13 +104,7 @@ class Spell_Generator(gen.PerilGenerator):
         """
         Generates a new random spell name.
         """
-        # Using random.choices() allows us to specify weighting. We only need 1
-        # result, so k=1, and we'll just take the first element of the (length 1)
-        # list it returns.
-        spell_name_template = random.choices(
-            SPELL_NAME_TEMPLATES,
-            SPELL_NAME_TEMPLATE_WEIGHTS,
-            k=1)[0]
+        spell_name_template = SPELL_NAME_TEMPLATE_TABLE.random()
 
         spell_info = []
         wizard_name = None
@@ -122,7 +120,7 @@ class Spell_Generator(gen.PerilGenerator):
                     wizard_name = self.generate_wizard_name(Spell_Tables)
                     spell_info.append(wizard_name)
             else:
-                feature = self.tables[table][random.randint(1, 100)]
+                feature = self.tables[table].random()
                 spell_info.append(feature)
 
         name_string = spell_name_template.string
