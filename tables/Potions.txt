@@ -1,0 +1,17 @@
+01-02 Balm
+03-04 Brew
+05-09 Dust
+10-24 Elixir
+25-26 Glue
+27-36 Oil
+37-38 Ointment
+39-40 Philter
+41-42 Potation
+43-73 Potion
+74-78 Powder
+79-88 Salve
+89-90 Sap
+91-92 Solution
+93-94 Tincture
+95-96 Tonic
+97-100 Unguent

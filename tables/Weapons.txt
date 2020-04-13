@@ -1,0 +1,50 @@
+01 Ally
+02 Arrow(s)
+03-07 Axe
+08 Bane
+09 Battle Axe
+10-14 Blade
+15 Bludgeon
+16 Bolt(s)
+17-21 Bow
+22 Brand
+23 Club
+24 Companion
+25 Crossbow
+26 Cudgel
+27 Curse
+28-32 Dagger
+33 Dart(s)
+34 Edge
+35 Flail
+36 Friend
+37 Glaive
+38 Great Axe
+39 Great Hammer
+40 Great Sword
+41 Halberd
+42-46 Hammer
+47 Hatchet
+48 Javelin
+49-53 Knife
+54 Lance
+55 Longaxe
+56 Longbow
+57 Longsword
+58-62 Mace
+63 Maul
+64 Morning Star
+65 Nail
+66 Pick
+67 Pike
+68 Quarterstaff
+69 Saber
+70 Scourge
+71 Shortbow
+72-76 Shortsword
+77 Sling
+78 Sparth
+79-83 Spear
+84 Spike
+85-99 Sword
+100 Warhammer
