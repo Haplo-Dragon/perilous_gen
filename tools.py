@@ -84,51 +84,43 @@ def load_tables(filename, fields):
     return enum_tables
 
 
-def build_item_tables(json_filename, fields):
+def build_item_tables(json_filename, item_filenames, fields):
     """
-    Build item tables from a text file.
+    Build item tables from a list of multiple text files (one text file per item
+    subtype), then save the resulting tables as JSON using the provided filename.
 
-    The text file contains entries from a dice roll table in the following format:
-    [Item type header]
+    The text files contain entries from a dice roll table in the following format:
     [number or number range] [item type]
     Example:
-    [WEAPON]
     42-46 Hammer
     """
-    raise NotImplementedError(
-        "Haven't figured out how to do this yet. Need to set format of text file(s)"
-    )
-    # # Each field will get its own blank table. This variable maps enum members to
-    # # Table objects.
-    # enum_tables = {table_name: tables.Table() for table_name in fields}
+    # Build each table, adding it to a containing dictionary with an appropriate key.
+    enum_tables = {table_name: tables.Table() for table_name in fields}
 
-    # # Strip the JSON extension from the filename and add a TXT extension.
-    # # We do this so that build_tables can be called with the same filename used for
-    # # load_tables.
-    # text_filename = json_filename[:-5]
-    # text_filename += ".txt"
+    # Because enum_tables and item_filenames were both built from an enum, they have
+    # a predictable, repeatable order. That means we can match them up with zip().
+    for item_table, item_file in zip(enum_tables.values(), item_filenames):
+        try:
+            with open(item_file, "r") as file:
+                for line in file:
+                    cleaned_line = line.strip()
+                    # Split the entries into a number (or number range) and an item.
+                    entry = cleaned_line.split(" ")
+                    # Get the weight for this set of entries.
+                    # For ranges, weight = top - bottom + 1. For single numbers,
+                    # weight = 1.
+                    weight = number_to_weight(entry[0])
+                    # Get the specific item.
+                    item = entry[1]
 
-    # try:
-    #     with open(text_filename, "r") as file:
-    #         for line in file:
-    #             cleaned_line = line.strip()
-    #             # Split the set of entries by field.
-    #             entry = cleaned_line.split(" ")
-    #             # Get the weight for this set of entries.
-    #             # For ranges, weight = top - bottom + 1. For single numbers, weight = 1.
-    #             weight = number_to_weight(entry[0])
+                    item_table.entries.append(item)
+                    item_table.weights.append(weight)
 
-    #             # Match each entry to its corresponding field.
-    #             for table, item in zip(enum_tables.values(), entry[1:]):
-    #                 table.entries.append(item)
-    #                 table.weights.append(weight)
+        except FileNotFoundError:
+            raise FileNotFoundError("No text file named {}!".format(item_file))
 
-    # except FileNotFoundError:
-    #     raise FileNotFoundError(
-    #         "Couldn't find a text file named {} with table data!".format(text_filename)
-    #     )
-
-    # save_tables(enum_tables, json_filename)
+    # Save the resulting object to a JSON file for later use.
+    save_tables(enum_tables, json_filename)
 
 
 def number_to_weight(number_string):

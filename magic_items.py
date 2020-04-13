@@ -19,6 +19,9 @@ class M_Item(Enum):
     MISC = 8
 
 
+M_Item_Weights = [1, 3, 1, 2, 1, 1, 1, 2]
+
+
 # Categories for the magic item name random tables.
 class M_ItemName(Enum):
     ITEM = 1
@@ -108,7 +111,7 @@ class M_Item_Generator(gen.PerilGenerator):
 
         gen.PerilGenerator.__init__(self, self.filename, magic_item_name_fields)
 
-        self.item_types = tables.Table(list(M_Item), [1, 3, 1, 2, 1, 1, 1, 2])
+        self.item_types = tables.Table(list(M_Item), M_Item_Weights)
         self.items = self.init_item_tables()
 
     def init_item_tables(self):
@@ -116,12 +119,22 @@ class M_Item_Generator(gen.PerilGenerator):
         specific_items_filename = os.path.join("tables", "Items.json")
 
         try:
-            items = tools.load_tables(M_Item, specific_items_filename)
+            items = tools.load_tables(specific_items_filename, M_Item)
         except FileNotFoundError:
-            tools.build_item_tables(M_Item, specific_items_filename)
-            items = tools.load_tables(M_Item, specific_items_filename)
+            item_paths = self.build_item_filepaths()
+            tools.build_item_tables(specific_items_filename, item_paths, M_Item)
+            items = tools.load_tables(specific_items_filename, M_Item)
 
         return items
+
+    def build_item_filepaths(self):
+        """
+        Returns a list of text filenames matching the members of M_Item.
+        """
+        item_paths = [item.name + ".txt" for item in M_Item]
+        item_paths = [os.path.join("tables", item) for item in item_paths]
+
+        return item_paths
 
     def magic_item(self):
         """
@@ -168,8 +181,6 @@ class M_Item_Generator(gen.PerilGenerator):
         """
         Returns a randomly chosen specific item of general_item_type.
         """
-        # TODO Can use a dict mapping general item type to item table and weights?
-        # So, dict mapping general item types (enums) to Table objects.
         return self.items[general_item_type].random()
 
     def scroll(self):
