@@ -103,19 +103,19 @@ class M_Item_Generator(gen.PerilGenerator):
 
     def __init__(self):
         self.filename = os.path.join("tables", "MagicItems.json")
-        magic_item_name_fields = [
-            M_ItemName.NOUN,
-            M_ItemName.ADJECTIVE,
-            M_ItemName.WIZARD_NAME_PRE,
-            M_ItemName.WIZARD_NAME_POST]
+        # magic_item_name_fields = [
+        #     M_ItemName.NOUN,
+        #     M_ItemName.ADJECTIVE,
+        #     M_ItemName.WIZARD_NAME_PRE,
+        #     M_ItemName.WIZARD_NAME_POST]
 
-        gen.PerilGenerator.__init__(self, self.filename, magic_item_name_fields)
+        # gen.PerilGenerator.__init__(self, self.filename, magic_item_name_fields)
+        gen.PerilGenerator.__init__(self, self.filename, M_ItemName)
 
         self.item_types = tables.Table(list(M_Item), M_Item_Weights)
         self.items = self.init_item_tables()
 
     def init_item_tables(self):
-        raise NotImplementedError("Specific items don't work - needs to be changed.")
         specific_items_filename = os.path.join("tables", "Items.json")
 
         try:
