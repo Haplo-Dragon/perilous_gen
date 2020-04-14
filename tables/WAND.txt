@@ -1,0 +1,8 @@
+01-05 Baton
+06-10 Cane
+11-15 Crook
+16-30 Rod
+31-40 Scepter
+41-70 Staff
+71-75 Stick
+76-100 Wand
