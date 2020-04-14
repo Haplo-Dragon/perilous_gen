@@ -140,12 +140,69 @@ class M_Item_Generator(gen.PerilGenerator):
         """
         Generates a new random magic item.
         """
-        # Get general item type.
-        general_item_type = self.item_types.random()
+        return self._random_item(self.item_types.random())
 
+    def specific_item(self, general_item_type):
+        """
+        Generates a new random magic item of the specified type.
+        """
+        return self._random_item(general_item_type)
+
+    def scroll(self):
+        """
+        Generates a new random magic scroll.
+        """
+        return self._scroll()
+
+    def potion(self):
+        """
+        Generates a new random magic potion.
+        """
+        return self._random_item(M_Item.POTION)
+
+    def garb(self):
+        """
+        Generates a new random piece of magic garb/clothing.
+        """
+        return self._random_item(M_Item.GARB)
+
+    def jewelry(self):
+        """
+        Generates a new random piece of magic jewelry.
+        """
+        return self._random_item(M_Item.JEWELRY)
+
+    def wand(self):
+        """
+        Generates a new random magic wand.
+        """
+        return self._random_item(M_Item.WAND)
+
+    def weapon(self):
+        """
+        Generates a new random magic weapon.
+        """
+        return self._random_item(M_Item.WEAPON)
+
+    def armor(self):
+        """
+        Generates a new random piece of magic armor.
+        """
+        return self._random_item(M_Item.ARMOR)
+
+    def misc_item(self):
+        """
+        Generates a new random miscellaneous magic item.
+        """
+        return self._random_item(M_Item.MISC)
+
+    def _random_item(self, general_item_type):
+        """
+        Generates a random magic item of general_item_type.
+        """
         # A scroll will have a random spell inscribed on it.
         if general_item_type == M_Item.SCROLL:
-            return self.scroll()
+            return self._scroll()
 
         item_name_template = M_ITEM_TEMPLATE_TABLE.random()
 
@@ -183,7 +240,7 @@ class M_Item_Generator(gen.PerilGenerator):
         """
         return self.items[general_item_type].random()
 
-    def scroll(self):
+    def _scroll(self):
         """
         Generates a scroll with a random spell inscribed on it.
         """
